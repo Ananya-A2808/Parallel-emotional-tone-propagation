@@ -59,9 +59,9 @@ def main():
     spath=os.path.join(args.out_dir,"states.txt")
     with open(spath,'w',encoding='utf-8') as sf:
         for v in states: sf.write(f"{float(v)}\n")
-    with open("py/node_index.json","w",encoding='utf-8') as jf:
+    with open("data/node_index.json","w",encoding='utf-8') as jf:
         json.dump(idx,jf)
-    print(f"Wrote {gpath} ({N} nodes, {len(edges)} edges) and {spath} and py/node_index.json")
+    print(f"Wrote {gpath} ({N} nodes, {len(edges)} edges) and {spath} and data/node_index.json")
 
 if __name__=="__main__":
     main()

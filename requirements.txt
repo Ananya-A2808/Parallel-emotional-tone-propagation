@@ -1,7 +1,6 @@
 pandas
-networkx
-vaderSentiment
-matplotlib
 numpy
-scikit-learn
-datasets
+matplotlib
+vaderSentiment
+networkx
+pytest

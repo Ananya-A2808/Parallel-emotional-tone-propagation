@@ -54,9 +54,9 @@ def main():
     print("Wrote", f"{opt.out_dir}/states.txt")
 
     # save mapping
-    with open("py/node_index.json", "w", encoding='utf-8') as jf:
+    with open("data/node_index.json", "w", encoding='utf-8') as jf:
         json.dump(idx, jf)
-    print("Wrote py/node_index.json (original_id -> index).")
+    print("Wrote data/node_index.json (original_id -> index).")
 
 if __name__ == "__main__":
     main()

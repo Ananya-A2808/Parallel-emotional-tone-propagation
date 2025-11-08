@@ -1,0 +1,25 @@
+# C++ binary
+cpp/bin/
+cpp/parallel_update
+cpp/parallel_update.exe
+cpp/*.o
+
+# Results and plots
+results/
+*.png
+*.csv
+*.txt
+
+# Python caches
+__pycache__/
+*.pyc
+py/node_index.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+results/
+cpp/bin/
+__pycache__/
+*.pyc
+*.log
