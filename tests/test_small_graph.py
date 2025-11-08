@@ -11,17 +11,21 @@ def write_toy():
     return "data/toy/graph.txt","data/toy/states.txt"
 
 def find_cpp_binary():
-    bin_unix = os.path.join("cpp","parallel_update")
-    bin_win = os.path.join("cpp","parallel_update.exe")
-    if os.path.exists(bin_win):
-        return bin_win
-    if os.path.exists(bin_unix):
-        return bin_unix
+    # try multiple common locations
+    possible = [
+        os.path.join("cpp", "parallel_update"),
+        os.path.join("cpp", "parallel_update.exe"),
+        os.path.join("cpp", "bin", "parallel_update"),
+        os.path.join("cpp", "bin", "parallel_update.exe"),
+    ]
+    for p in possible:
+        if os.path.exists(p):
+            return p
     from shutil import which
     alt = which("parallel_update") or which("parallel_update.exe")
     if alt:
         return alt
-    raise FileNotFoundError("C++ binary parallel_update not found. Build it with cpp/build.sh")
+    raise FileNotFoundError("C++ binary parallel_update not found. Run: bash cpp/build.sh")
 
 def test_serial_vs_cpp():
     g, s = write_toy()
