@@ -1,0 +1,7 @@
+pandas
+networkx
+vaderSentiment
+matplotlib
+numpy
+scikit-learn
+datasets
