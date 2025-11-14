@@ -79,3 +79,5 @@ htmlcov/
 *.temp
 *.bak
 *.backup
+PAPER_INSTRUCTIONS.md
+paper.tex

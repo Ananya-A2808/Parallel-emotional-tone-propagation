@@ -169,10 +169,10 @@ bash run_all.sh
 
 This automatically:
 1. ✅ Builds/loads the graph
-2. ✅ Runs serial simulation (optional, can be skipped)
+2. ✅ Runs serial simulation (with progress logging)
 3. ✅ Builds C++ binary
-4. ✅ Runs parallel simulations with different thread counts
-5. ✅ Generates plots and analysis
+4. ✅ Runs parallel simulations with different thread counts (1-8 threads)
+5. ✅ Generates plots: execution_time.png, speedup.png, and serial_history.png
 
 ### Step 5: View Results
 
@@ -183,7 +183,9 @@ Results are saved in `results/run_<timestamp>/`:
 cat results/run_*/execution_time.csv
 
 # View plots
-# Open: results/run_*/plots/execution_time.png
+# Open: results/run_*/plots/execution_time.png  (execution time plot)
+# Open: results/run_*/plots/speedup.png         (speedup plot)
+# Open: results/run_*/plots/serial_history.png  (serial history, if serial was run)
 ```
 
 ---
@@ -208,7 +210,9 @@ results/run_<timestamp>/
 │   ├── out_states_<N>.txt    # Final states for N threads
 │   └── execution_time.csv    # Performance data
 ├── plots/                     # Generated visualizations
-│   ├── execution_time.png    # Main performance plot
+│   ├── serial_history.png    # Serial simulation history (if serial was run)
+│   ├── execution_time.png    # Execution time vs threads plot
+│   ├── speedup.png           # Speedup vs threads plot
 │   ├── execution_time_speedup.csv
 │   └── execution_time_cleaned.csv
 ├── logs/                      # Execution logs
@@ -228,13 +232,21 @@ results/run_<timestamp>/
    ...
    ```
 
-2. **`execution_time.png`** - Dual plot showing:
-   - **Left**: Execution time vs threads (lower is better)
-   - **Right**: Speedup vs threads (higher is better)
-   - **Red marker**: Optimal thread count
-   - **Green marker**: Maximum speedup
+2. **`execution_time.png`** - Execution time vs threads plot:
+   - Shows how execution time changes with number of threads
+   - Lower execution time is better
+   - Helps identify optimal thread count
 
-3. **`experiment_metadata.json`** - Complete run information
+3. **`speedup.png`** - Speedup vs threads plot:
+   - Shows speedup relative to single-threaded execution
+   - Higher speedup is better
+   - Baseline (1.0) represents single-threaded performance
+
+4. **`serial_history.png`** - Serial simulation history (if serial was run):
+   - Shows emotional tone diffusion over time
+   - Useful for comparing with parallel results
+
+5. **`experiment_metadata.json`** - Complete run information
 
 ### Interpreting Results
 
@@ -356,7 +368,7 @@ Parallel-emotional-tone-propagation/
 | `cpp/parallel_update.cpp` | Parallelized diffusion using OpenMP |
 | `py/generate_large_graph.py` | Generate synthetic social network graphs |
 | `py/scale_existing_graph.py` | Scale existing graphs to larger sizes |
-| `py/plot.py` | Generate execution time and speedup plots |
+| `py/plot.py` | Generate plots: execution time, speedup, and serial history (separate PNG files) |
 | `py/build_graph.py` | Convert raw edgelist to required format |
 | `run_all.sh` | Complete automated pipeline |
 

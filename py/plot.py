@@ -29,15 +29,41 @@ def plot_history(path, out):
         raise
     if hist.ndim == 0:
         hist = np.array([float(hist)])
-    plt.figure(figsize=(7,3.5))
-    plt.plot(hist, marker='o')
-    plt.xlabel("Timestep")
-    plt.ylabel("Average sentiment")
-    plt.title("Sentiment diffusion over time")
-    plt.grid(True, alpha=0.3)
+    
+    # Create figure with better visualization
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+    
+    # Full timeline plot
+    ax1.plot(hist, linewidth=1.5, color='#2E86AB', alpha=0.8)
+    ax1.set_xlabel("Timestep", fontsize=11)
+    ax1.set_ylabel("Average sentiment", fontsize=11)
+    ax1.set_title("Sentiment Diffusion Over Time (Full Timeline)", fontsize=12, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    
+    # Zoomed view of initial convergence (first 5% or first 1000 steps, whichever is smaller)
+    zoom_steps = min(1000, len(hist) // 20)
+    if zoom_steps > 10:
+        ax2.plot(hist[:zoom_steps], linewidth=2, color='#A23B72', marker='o', markersize=3, alpha=0.8)
+        ax2.set_xlabel("Timestep (zoomed)", fontsize=11)
+        ax2.set_ylabel("Average sentiment", fontsize=11)
+        ax2.set_title(f"Initial Convergence Phase (First {zoom_steps} Steps)", fontsize=12, fontweight='bold')
+        ax2.grid(True, alpha=0.3)
+        
+        # Add convergence annotation
+        if len(hist) > zoom_steps:
+            final_val = hist[-1]
+            ax2.axhline(y=final_val, color='green', linestyle='--', alpha=0.5, 
+                        label=f'Equilibrium: {final_val:.6f}')
+            ax2.legend(loc='best')
+    else:
+        # If too few steps, just show message
+        ax2.text(0.5, 0.5, 'Insufficient data for zoom view', 
+                ha='center', va='center', transform=ax2.transAxes)
+        ax2.axis('off')
+    
     plt.tight_layout()
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-    plt.savefig(out, dpi=150)
+    plt.savefig(out, dpi=150, bbox_inches='tight')
     plt.close()
     print("Wrote", out)
 

@@ -98,18 +98,18 @@ cp -v data/graph.txt data/states.txt "${OUTDIR}/inputs/" || true
 [ -f data/node_index.json ] && cp -v data/node_index.json "${OUTDIR}/inputs/" || true
 
 # Step 2: Serial baseline
-mkdir -p "${OUTDIR}/serial"
-echo "Running serial baseline..."
-echo "  Graph: $(head -1 data/graph.txt | awk '{print $1 " nodes, " $2 " edges"}')"
-echo "  Steps: ${STEPS}, Alpha: ${ALPHA}"
-echo ""
-"${PYTHON}" py/serial_sim.py --graph data/graph.txt --states data/states.txt --steps "${STEPS}" --alpha "${ALPHA}" --out "${OUTDIR}/serial/serial_history.txt" 2>&1
-echo ""
+# mkdir -p "${OUTDIR}/serial"
+# echo "Running serial baseline..."
+# echo "  Graph: $(head -1 data/graph.txt | awk '{print $1 " nodes, " $2 " edges"}')"
+# echo "  Steps: ${STEPS}, Alpha: ${ALPHA}"
+# echo ""
+# "${PYTHON}" py/serial_sim.py --graph data/graph.txt --states data/states.txt --steps "${STEPS}" --alpha "${ALPHA}" --out "${OUTDIR}/serial/serial_history.txt" 2>&1
+# echo ""
 
-# capture serial final states if available
-if [ -f "results/serial_final_states.txt" ]; then
-  cp -v results/serial_final_states.txt "${OUTDIR}/serial/serial_final_states.txt" || true
-fi
+# # capture serial final states if available
+# if [ -f "results/serial_final_states.txt" ]; then
+#   cp -v results/serial_final_states.txt "${OUTDIR}/serial/serial_final_states.txt" || true
+# fi
 
 # Step 3: build C++ binary
 echo "Building C++ binary..."
