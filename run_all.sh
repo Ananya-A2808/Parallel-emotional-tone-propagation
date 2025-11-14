@@ -97,20 +97,19 @@ cp -v data/graph.txt data/states.txt "${OUTDIR}/inputs/" || true
 [ -f "${PER_USER}" ] && cp -v "${PER_USER}" "${OUTDIR}/inputs/" || true
 [ -f data/node_index.json ] && cp -v data/node_index.json "${OUTDIR}/inputs/" || true
 
-# Step 2: Serial baseline (COMMENTED OUT - skipping serial to save time)
-# mkdir -p "${OUTDIR}/serial"
-# echo "Running serial baseline..."
-# echo "  Graph: $(head -1 data/graph.txt | awk '{print $1 " nodes, " $2 " edges"}')"
-# echo "  Steps: ${STEPS}, Alpha: ${ALPHA}"
-# echo ""
-# "${PYTHON}" py/serial_sim.py --graph data/graph.txt --states data/states.txt --steps "${STEPS}" --alpha "${ALPHA}" --out "${OUTDIR}/serial/serial_history.txt" 2>&1
-# echo ""
-# 
-# # capture serial final states if available
-# if [ -f "results/serial_final_states.txt" ]; then
-#   cp -v results/serial_final_states.txt "${OUTDIR}/serial/serial_final_states.txt" || true
-# fi
-echo "Skipping serial baseline (commented out). Running parallel only."
+# Step 2: Serial baseline
+mkdir -p "${OUTDIR}/serial"
+echo "Running serial baseline..."
+echo "  Graph: $(head -1 data/graph.txt | awk '{print $1 " nodes, " $2 " edges"}')"
+echo "  Steps: ${STEPS}, Alpha: ${ALPHA}"
+echo ""
+"${PYTHON}" py/serial_sim.py --graph data/graph.txt --states data/states.txt --steps "${STEPS}" --alpha "${ALPHA}" --out "${OUTDIR}/serial/serial_history.txt" 2>&1
+echo ""
+
+# capture serial final states if available
+if [ -f "results/serial_final_states.txt" ]; then
+  cp -v results/serial_final_states.txt "${OUTDIR}/serial/serial_final_states.txt" || true
+fi
 
 # Step 3: build C++ binary
 echo "Building C++ binary..."
@@ -233,7 +232,9 @@ if [ -f "${OUTDIR}/serial/serial_history.txt" ]; then
 else
   echo "Skipping serial history plot (serial simulation was skipped)"
 fi
-"${PYTHON}" py/plot.py --speedup "${OUTDIR}/execution_time.csv" --out "${OUTDIR}/plots/execution_time.png"
+# Generate separate plots for execution time and speedup
+"${PYTHON}" py/plot.py --execution-time "${OUTDIR}/execution_time.csv" --out "${OUTDIR}/plots/execution_time.png"
+"${PYTHON}" py/plot.py --speedup "${OUTDIR}/execution_time.csv" --out "${OUTDIR}/plots/speedup.png"
 cp -v "${OUTDIR}/parallel/history_"*.txt "${OUTDIR}/plots/" 2>/dev/null || true
 
 # Step 7: metadata — create JSON safely (uses $PYTHON and serializes THREADS_LIST)
