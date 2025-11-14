@@ -149,8 +149,8 @@ ALPHA=0.25
 # Line 10: Graph file path
 GRAPH_EDGELIST="data/raw/large_graph.edges"
 
-# Line 47: Thread counts to test (default: 1-8)
-THREADS_LIST=(1 2 3 4 5 6 7 8)
+# Line 46: Thread counts to test (default: 1-6, optimal performance observed up to 6 threads)
+THREADS_LIST=(1 2 3 4 5 6)
 ```
 
 ### Step 3: Build C++ Binary
@@ -171,7 +171,7 @@ This automatically:
 1. ✅ Builds/loads the graph
 2. ✅ Runs serial simulation (with progress logging)
 3. ✅ Builds C++ binary
-4. ✅ Runs parallel simulations with different thread counts (1-8 threads)
+4. ✅ Runs parallel simulations with different thread counts (1-6 threads)
 5. ✅ Generates plots: execution_time.png, speedup.png, and serial_history.png
 
 ### Step 5: View Results
@@ -267,7 +267,7 @@ ALPHA=0.25              # Propagation coefficient (0.0-1.0)
 GRAPH_EDGELIST="data/raw/large_graph.edges"  # Graph file path
 
 # Thread testing
-THREADS_LIST=(1 2 3 4 5 6 7 8)  # Thread counts to test
+THREADS_LIST=(1 2 3 4 5 6)  # Thread counts to test (optimal performance up to 6 threads)
 ```
 
 ### Graph Generation Options

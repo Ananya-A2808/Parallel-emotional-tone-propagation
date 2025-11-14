@@ -42,8 +42,8 @@ if ! declare -p THREADS_LIST >/dev/null 2>&1; then
     CPU_COUNT=$(sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
   fi
 
-  # Test all thread counts from 1 to 8 to find optimal point
-  THREADS_LIST=(1 2 3 4 5 6 7 8)
+  # Test thread counts from 1 to 6 (optimal performance observed up to 6 threads)
+  THREADS_LIST=(1 2 3 4 5 6)
 fi
 
 # Step 0: Skip preprocessing (preprocess_sentiment.py removed - not needed without raw tweets)
