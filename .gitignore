@@ -1,25 +1,81 @@
-# C++ binary
+# C++ compiled binaries
 cpp/bin/
+cpp/*.o
 cpp/parallel_update
 cpp/parallel_update.exe
-cpp/*.o
 
-# Results and plots
+# Results and generated outputs
 results/
 *.png
 *.csv
 *.txt
+*.log
+!requirements.txt
+!README.md
+!QUICK_START.md
+!OPTIMIZATION_SUMMARY.md
+!PERFORMANCE_NOTES.md
 
-# Python caches
+# Python caches and compiled files
 __pycache__/
 *.pyc
-py/node_index.json
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
 
-# OS junk
+# Data files (keep structure, ignore large generated files)
+data/graph.txt
+data/states.txt
+data/node_index.json
+data/*.edges
+data/*.csv
+data/toy/
+!data/raw/
+!data/per_user_sentiment.csv
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
-results/
-cpp/bin/
-__pycache__/
-*.pyc
-*.log
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup

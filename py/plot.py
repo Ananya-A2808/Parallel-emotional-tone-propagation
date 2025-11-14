@@ -4,7 +4,7 @@ plot.py
 
 Supports:
   --history <history.txt>   (one numeric value per line)
-  --speedup <speedup.csv>   (threads,time) or (threads,time,anything) ; header allowed
+  --speedup <speedup.csv>   (threads,time,anything) ; header allowed
 Writes plot to --out (PNG).
 
 Usage:
@@ -40,35 +40,27 @@ def plot_history(path, out):
     print("Wrote", out)
 
 def plot_speedup(path, out):
-    # Read with pandas to tolerate header and stray commas
+    # Read with pandas to tolerate header and stray commas (input contains execution times)
     try:
-        # try common delimiters
         for sep in [',',';',None]:
             try:
                 df = pd.read_csv(path, sep=sep, engine='python', comment='#', skip_blank_lines=True)
-                # if result has 0 or 1 cols, keep trying
                 if df.shape[1] >= 2:
                     break
             except Exception:
                 df = None
         if df is None or df.shape[1] < 2:
-            # fallback: try whitespace split
             df = pd.read_csv(path, delim_whitespace=True, header=None, engine='python')
     except Exception as e:
         print("Failed to read CSV with pandas:", e, file=sys.stderr)
         raise
 
-    # drop fully-empty columns
-    df = df.dropna(axis=1, how='all')
-    # drop rows with all NaN
-    df = df.dropna(axis=0, how='all')
+    df = df.dropna(axis=1, how='all').dropna(axis=0, how='all')
     if df.shape[1] < 2:
-        raise SystemExit("speedup file must contain at least two columns (threads,time). Found:\n" + str(df.head(10)))
+        raise SystemExit("execution-time file must contain at least two columns (threads,time). Found:\n" + str(df.head(10)))
 
-    # assume first two numeric columns are threads and time
-    # convert columns to numeric where possible
+    # find first two numeric columns
     df_cols = df.columns.tolist()
-    # try to coerce first numeric-like pair
     numeric_cols = []
     for col in df_cols:
         coerced = pd.to_numeric(df[col], errors='coerce')
@@ -77,7 +69,7 @@ def plot_speedup(path, out):
         if len(numeric_cols) >= 2:
             break
     if len(numeric_cols) < 2:
-        raise SystemExit("Couldn't find two numeric columns in speedup CSV. Inspect file.")
+        raise SystemExit("Couldn't find two numeric columns in execution-time CSV. Inspect file.")
 
     threads_col, time_col = numeric_cols[0], numeric_cols[1]
     df2 = df[[threads_col, time_col]].copy()
@@ -85,32 +77,61 @@ def plot_speedup(path, out):
     df2[time_col] = pd.to_numeric(df2[time_col], errors='coerce')
     df2 = df2.dropna(subset=[threads_col, time_col])
 
-    # ensure sort by threads
     df2 = df2.sort_values(by=threads_col)
     threads = df2[threads_col].to_numpy()
     times = df2[time_col].to_numpy()
+    
+    # Calculate speedup (relative to 1 thread)
+    baseline_time = times[0] if len(times) > 0 else 1.0
+    speedup = baseline_time / times
 
-    # base time: time where threads is 1 if exists, else first entry
-    base_idx = np.where(threads == 1)[0]
-    if base_idx.size > 0:
-        base_time = float(times[base_idx[0]])
-    else:
-        base_time = float(times[0])
-        print("Warning: no threads==1 found; using first row as base for speedup calculation", file=sys.stderr)
-
-    speedup = base_time / times
-    plt.figure(figsize=(6,3.5))
-    plt.plot(threads, speedup, marker='o')
-    plt.xlabel("Threads")
-    plt.ylabel("Speedup (T1 / Tn)")
-    plt.title("Parallel speedup")
-    plt.grid(True, alpha=0.3)
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+    
+    # Plot 1: Execution time
+    ax1.plot(threads, times, marker='o', linewidth=2, markersize=8, color='#2E86AB')
+    ax1.set_xlabel("Threads", fontsize=11)
+    ax1.set_ylabel("Execution time (s)", fontsize=11)
+    ax1.set_title("Execution Time vs Threads", fontsize=12, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    ax1.set_xticks(threads)
+    
+    # Highlight minimum point
+    min_idx = np.argmin(times)
+    ax1.plot(threads[min_idx], times[min_idx], marker='o', markersize=12, 
+             color='red', markeredgecolor='darkred', markeredgewidth=2, 
+             label=f'Optimal: {threads[min_idx]} threads ({times[min_idx]:.2f}s)')
+    ax1.legend(loc='best')
+    
+    # Plot 2: Speedup
+    ax2.plot(threads, speedup, marker='s', linewidth=2, markersize=8, color='#A23B72')
+    ax2.axhline(y=1.0, color='gray', linestyle='--', alpha=0.5, label='Baseline (1 thread)')
+    ax2.set_xlabel("Threads", fontsize=11)
+    ax2.set_ylabel("Speedup (relative to 1 thread)", fontsize=11)
+    ax2.set_title("Speedup vs Threads", fontsize=12, fontweight='bold')
+    ax2.grid(True, alpha=0.3)
+    ax2.set_xticks(threads)
+    
+    # Highlight maximum speedup
+    max_speedup_idx = np.argmax(speedup)
+    ax2.plot(threads[max_speedup_idx], speedup[max_speedup_idx], marker='s', markersize=12,
+             color='green', markeredgecolor='darkgreen', markeredgewidth=2,
+             label=f'Max speedup: {speedup[max_speedup_idx]:.2f}x at {threads[max_speedup_idx]} threads')
+    ax2.legend(loc='best')
+    
     plt.tight_layout()
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-    plt.savefig(out, dpi=150)
+    plt.savefig(out, dpi=150, bbox_inches='tight')
     plt.close()
     print("Wrote", out)
-    # also write cleaned CSV used
+    
+    # Also save a speedup CSV
+    speedup_df = df2.copy()
+    speedup_df['speedup'] = speedup
+    speedup_file = os.path.splitext(out)[0] + "_speedup.csv"
+    speedup_df.to_csv(speedup_file, index=False)
+    print("Wrote speedup CSV to", speedup_file)
+    
     cleaned = os.path.splitext(out)[0] + "_cleaned.csv"
     df2.to_csv(cleaned, index=False)
     print("Wrote cleaned CSV to", cleaned)

@@ -1,18 +1,12 @@
-.PHONY: all build clean test run-perf plot
+.PHONY: all build clean plot
 
 all: build
 
 build:
 	bash cpp/build.sh
 
-test:
-	python -m pytest -q
-
-run-perf:
-	bash cpp/run_perf.sh
-
 plot:
-	python py/plot.py --speedup results/speedup.csv --out results/plots/speedup.png
+	python py/plot.py --speedup results/execution_time.csv --out results/plots/execution_time.png
 	python py/plot.py --history results/serial_history.txt --out results/plots/serial_plot.png
 
 clean:
