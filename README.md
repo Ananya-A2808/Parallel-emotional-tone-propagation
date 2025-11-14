@@ -43,7 +43,7 @@ Before running this project, ensure you have:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Ananya-A2808/Parallel-emotional-tone-propagation.git
 cd Parallel-emotional-tone-propagation
 ```
 
