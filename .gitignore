@@ -5,7 +5,7 @@ cpp/parallel_update
 cpp/parallel_update.exe
 
 # Results and generated outputs
-results/
+# results/
 *.png
 *.csv
 *.txt

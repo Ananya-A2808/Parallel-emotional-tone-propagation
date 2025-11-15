@@ -1,0 +1,27 @@
+{
+  "timestamp": "20251115-101508",
+  "steps": 50000,
+  "alpha": 0.25,
+  "threads_list": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "git_commit": "097ff91",
+  "python_version": "3.13.3",
+  "gpp": "g++ (MinGW-W64 x86_64-msvcrt-posix-seh, built by Brecht Sanders, r1) 15.2.0",
+  "cpu_count_logical": 22,
+  "execution_time_csv": "C:\\Users\\HP\\OneDrive\\Desktop\\ananya map project\\Parallel-emotional-tone-propagation\\results\\run_20251115-101508\\execution_time.csv",
+  "plots": {
+    "serial": "C:\\Users\\HP\\OneDrive\\Desktop\\ananya map project\\Parallel-emotional-tone-propagation\\results\\run_20251115-101508\\plots\\serial_history.png",
+    "execution_time": "C:\\Users\\HP\\OneDrive\\Desktop\\ananya map project\\Parallel-emotional-tone-propagation\\results\\run_20251115-101508\\plots\\execution_time.png"
+  },
+  "notes": "Run produced by run_all.sh"
+}
