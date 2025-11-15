@@ -6,10 +6,10 @@ cpp/parallel_update.exe
 
 # Results and generated outputs
 # results/
-*.png
-*.csv
-*.txt
-*.log
+# *.png
+# *.csv
+# *.txt
+# *.log
 !requirements.txt
 !README.md
 !QUICK_START.md
