@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
         chunk = atoi(chunk_env);
     } else {
         // Auto-tune chunk size based on graph size and thread count
-        // Optimized for scalability up to 8 threads with large graphs
+        // Optimized for scalability up to 10 threads with very large graphs (50K+ nodes)
         if (N < 1000) {
             chunk = std::max(1, (int)(N / (used_threads * 4)));
         } else if (N < 10000) {
@@ -117,30 +117,47 @@ int main(int argc, char** argv) {
             if (used_threads <= 4) {
                 chunk = std::max(1, (int)(N / (used_threads * 8)));
             } else if (used_threads <= 6) {
-                // For 5-6 threads, use larger chunks to reduce memory bandwidth contention
                 chunk = std::max(1, (int)(N / (used_threads * 4)));
-            } else {
-                // For 7-8 threads, use even larger chunks to minimize overhead
+            } else if (used_threads <= 8) {
                 chunk = std::max(1, (int)(N / (used_threads * 3)));
+            } else {
+                // For 9-10 threads, use larger chunks to minimize overhead
+                chunk = std::max(1, (int)(N / (used_threads * 2)));
             }
         } else if (N < 30000) {
-            // For large graphs (10K-30K), optimize for 8-thread scalability
+            // For large graphs (10K-30K), optimize for 10-thread scalability
             if (used_threads <= 4) {
                 chunk = std::max(1, (int)(N / (used_threads * 16)));
             } else if (used_threads <= 6) {
                 chunk = std::max(1, (int)(N / (used_threads * 10)));
-            } else {
-                // For 7-8 threads on large graphs, use medium-large chunks
+            } else if (used_threads <= 8) {
                 chunk = std::max(1, (int)(N / (used_threads * 6)));
+            } else {
+                // For 9-10 threads on large graphs, use medium chunks
+                chunk = std::max(1, (int)(N / (used_threads * 5)));
             }
-        } else {
-            // For very large graphs (30K+), use smaller chunks for better load balance
+        } else if (N < 50000) {
+            // For very large graphs (30K-50K), optimize for 10-thread scalability
             if (used_threads <= 4) {
                 chunk = std::max(1, (int)(N / (used_threads * 20)));
             } else if (used_threads <= 6) {
                 chunk = std::max(1, (int)(N / (used_threads * 12)));
+            } else if (used_threads <= 8) {
+                chunk = std::max(1, (int)(N / (used_threads * 8)));
             } else {
-                // For 7-8 threads on very large graphs, balance chunk size
+                // For 9-10 threads on very large graphs, use balanced chunks
+                chunk = std::max(1, (int)(N / (used_threads * 6)));
+            }
+        } else {
+            // For extremely large graphs (50K+), optimize for 10-thread scalability
+            if (used_threads <= 4) {
+                chunk = std::max(1, (int)(N / (used_threads * 25)));
+            } else if (used_threads <= 6) {
+                chunk = std::max(1, (int)(N / (used_threads * 15)));
+            } else if (used_threads <= 8) {
+                chunk = std::max(1, (int)(N / (used_threads * 10)));
+            } else {
+                // For 9-10 threads on extremely large graphs, use optimized chunks
                 chunk = std::max(1, (int)(N / (used_threads * 8)));
             }
         }
@@ -166,6 +183,23 @@ int main(int argc, char** argv) {
         if (N < 500) {
             // Use guided scheduling for small graphs to minimize overhead
             #pragma omp parallel for reduction(+:global_sum) schedule(guided)
+            for (size_t v=0; v<N; ++v) {
+                size_t start = offsets[v];
+                size_t end = offsets[v+1];
+                if (start == end) {
+                    new_states[v] = states[v];
+                } else {
+                    double sum = 0.0;
+                    for (size_t j=start; j<end; ++j) sum += states[ static_cast<size_t>(nbrs[j]) ];
+                    double avg = sum / double(end - start);
+                    new_states[v] = (1.0 - alpha) * states[v] + alpha * avg;
+                }
+                global_sum += new_states[v];
+            }
+        } else if (used_threads > 8) {
+            // For 9-10 threads, use dynamic scheduling with optimized chunk size
+            // Critical for very large graphs (50K+) to handle memory bandwidth saturation
+            #pragma omp parallel for reduction(+:global_sum) schedule(dynamic, chunk)
             for (size_t v=0; v<N; ++v) {
                 size_t start = offsets[v];
                 size_t end = offsets[v+1];

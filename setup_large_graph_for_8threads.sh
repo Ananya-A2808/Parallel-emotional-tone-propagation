@@ -6,12 +6,12 @@
 set -euo pipefail
 
 echo "=========================================="
-echo "Generating Large Graph for 8-Thread Testing"
+echo "Generating Large Graph for 10-Thread Testing"
 echo "=========================================="
 echo ""
 
-# Default: 30K nodes (good balance between size and generation time)
-NODES="${1:-30000}"
+# Default: 50K nodes (optimal for 10-thread testing)
+NODES="${1:-50000}"
 MODEL="${2:-social}"
 
 echo "Configuration:"
@@ -46,8 +46,8 @@ echo ""
 echo "To use this graph, update run_all.sh:"
 echo "  GRAPH_EDGELIST=\"data/raw/large_graph_${NODES}.edges\""
 echo ""
-echo "Recommended settings for 8-thread testing:"
+echo "Recommended settings for 10-thread testing:"
 echo "  STEPS=50000  (or higher for very large graphs)"
-echo "  THREADS_LIST=(1 2 3 4 5 6 7 8)"
+echo "  THREADS_LIST=(1 2 3 4 5 6 7 8 9 10)"
 echo ""
 

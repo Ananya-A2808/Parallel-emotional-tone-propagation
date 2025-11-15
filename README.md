@@ -81,32 +81,33 @@ If you already have a graph file:
 bash run_all.sh
 ```
 
-### Option 2: Generate a Large Graph (Recommended for 8-Thread Performance Testing)
+### Option 2: Generate a Large Graph (Recommended for 10-Thread Performance Testing)
 
-For optimal scalability up to 8 threads, use graphs with **20K-50K nodes**:
+For optimal scalability up to 10 threads, use graphs with **50K+ nodes**:
 
 ```bash
-# Quick setup: Generate 30K node graph (recommended for 8-thread testing)
-bash setup_large_graph_for_8threads.sh 30000 social
+# Quick setup: Generate 50K node graph (recommended for 10-thread testing)
+bash setup_large_graph_for_8threads.sh 50000 social
 
 # Or manually:
-# 1. Generate a 30,000 node graph (optimal for 8 threads)
-python py/generate_large_graph.py --nodes 30000 --model social --out data/raw/large_graph_30k.edges
+# 1. Generate a 50,000 node graph (optimal for 10 threads)
+python py/generate_large_graph.py --nodes 50000 --model social --out data/raw/large_graph_50k.edges
 
 # 2. Build the graph format
-python py/build_graph.py --edgelist data/raw/large_graph_30k.edges --per-user data/per_user_sentiment.csv --out-dir data
+python py/build_graph.py --edgelist data/raw/large_graph_50k.edges --per-user data/per_user_sentiment.csv --out-dir data
 
 # 3. Update run_all.sh to use the new graph
-# Edit line 11: GRAPH_EDGELIST="data/raw/large_graph_30k.edges"
+# Edit line 11: GRAPH_EDGELIST="data/raw/large_graph_50k.edges"
 
-# 4. Run the pipeline (will test 1-8 threads)
+# 4. Run the pipeline (will test 1-10 threads)
 bash run_all.sh
 ```
 
 **Graph Size Recommendations:**
 - **10K nodes**: Good for 1-4 threads
 - **20K-30K nodes**: Recommended for 1-6 threads, decent for 8 threads
-- **30K-50K nodes**: Optimal for 1-8 threads (best scalability)
+- **30K-50K nodes**: Good for 1-8 threads
+- **50K+ nodes**: Optimal for 1-10 threads (best scalability)
 
 ### Option 3: Scale Existing Graph
 
@@ -163,8 +164,8 @@ ALPHA=0.25
 # Line 10: Graph file path
 GRAPH_EDGELIST="data/raw/large_graph.edges"
 
-# Line 46: Thread counts to test (default: 1-8, requires large graphs for optimal performance)
-THREADS_LIST=(1 2 3 4 5 6 7 8)
+# Line 47: Thread counts to test (default: 1-10, requires very large graphs 50K+ nodes for optimal performance)
+THREADS_LIST=(1 2 3 4 5 6 7 8 9 10)
 ```
 
 ### Step 3: Build C++ Binary
@@ -185,7 +186,7 @@ This automatically:
 1. ✅ Builds/loads the graph
 2. ✅ Runs serial simulation (with progress logging)
 3. ✅ Builds C++ binary
-4. ✅ Runs parallel simulations with different thread counts (1-8 threads)
+4. ✅ Runs parallel simulations with different thread counts (1-10 threads)
 5. ✅ Generates plots: execution_time.png, speedup.png, and serial_history.png
 
 ### Step 5: View Results
@@ -281,7 +282,7 @@ ALPHA=0.25              # Propagation coefficient (0.0-1.0)
 GRAPH_EDGELIST="data/raw/large_graph.edges"  # Graph file path
 
 # Thread testing
-THREADS_LIST=(1 2 3 4 5 6 7 8)  # Thread counts to test (requires large graphs 20K+ nodes for optimal 8-thread performance)
+THREADS_LIST=(1 2 3 4 5 6 7 8 9 10)  # Thread counts to test (requires very large graphs 50K+ nodes for optimal 10-thread performance)
 ```
 
 ### Graph Generation Options
@@ -291,8 +292,8 @@ THREADS_LIST=(1 2 3 4 5 6 7 8)  # Thread counts to test (requires large graphs 2
 python py/generate_large_graph.py --nodes 5000 --model social --out data/raw/graph_5k.edges
 python py/generate_large_graph.py --nodes 10000 --model social --out data/raw/graph_10k.edges
 python py/generate_large_graph.py --nodes 20000 --model social --out data/raw/graph_20k.edges  # Good for 6 threads
-python py/generate_large_graph.py --nodes 30000 --model social --out data/raw/graph_30k.edges  # Recommended for 8 threads
-python py/generate_large_graph.py --nodes 50000 --model social --out data/raw/graph_50k.edges  # Optimal for 8 threads
+python py/generate_large_graph.py --nodes 30000 --model social --out data/raw/graph_30k.edges  # Good for 8 threads
+python py/generate_large_graph.py --nodes 50000 --model social --out data/raw/graph_50k.edges  # Optimal for 10 threads
 
 # Different graph models
 python py/generate_large_graph.py --nodes 10000 --model barabasi --out data/raw/ba_graph.edges
@@ -306,24 +307,25 @@ python py/generate_large_graph.py --nodes 10000 --model watts --out data/raw/ws_
 
 ### Problem: "Execution time not decreasing with more threads" or "Performance stops improving after 5-6 threads"
 
-**Solution**: Your graph is too small. For optimal 8-thread performance, use graphs with **20K-50K nodes**:
+**Solution**: Your graph is too small. For optimal 10-thread performance, use graphs with **50K+ nodes**:
 
 ```bash
-# Quick setup for 8-thread testing (30K nodes recommended)
-bash setup_large_graph_for_8threads.sh 30000 social
+# Quick setup for 10-thread testing (50K nodes recommended)
+bash setup_large_graph_for_8threads.sh 50000 social
 
 # Or manually:
-python py/generate_large_graph.py --nodes 30000 --model social --out data/raw/large_graph_30k.edges
-python py/build_graph.py --edgelist data/raw/large_graph_30k.edges --per-user data/per_user_sentiment.csv --out-dir data
+python py/generate_large_graph.py --nodes 50000 --model social --out data/raw/large_graph_50k.edges
+python py/build_graph.py --edgelist data/raw/large_graph_50k.edges --per-user data/per_user_sentiment.csv --out-dir data
 
 # Update run_all.sh line 11:
-# GRAPH_EDGELIST="data/raw/large_graph_30k.edges"
+# GRAPH_EDGELIST="data/raw/large_graph_50k.edges"
 ```
 
 **Why?** 
 - Small graphs (< 1000 nodes): Parallelization overhead exceeds computation time
 - Medium graphs (1K-10K nodes): Good for 1-4 threads, but memory bandwidth saturates with 6+ threads
-- Large graphs (20K-50K nodes): Provide enough work per thread to scale effectively to 8 threads
+- Large graphs (20K-30K nodes): Good for 1-6 threads, decent for 8 threads
+- Very large graphs (50K+ nodes): Provide enough work per thread to scale effectively to 10 threads
 
 ### Problem: "C++ binary not found"
 
@@ -405,23 +407,25 @@ Parallel-emotional-tone-propagation/
 1. **Use larger graphs for better scalability:**
    - **10K nodes**: Good for 1-4 threads
    - **20K-30K nodes**: Recommended for 1-6 threads, decent for 8 threads
-   - **30K-50K nodes**: Optimal for 1-8 threads (best scalability)
+   - **30K-50K nodes**: Good for 1-8 threads
+   - **50K+ nodes**: Optimal for 1-10 threads (best scalability)
 
 2. **Optimal thread count depends on graph size:**
    - Small graphs (< 5K nodes): 2-4 threads optimal
    - Medium graphs (5K-15K nodes): 3-6 threads optimal
-   - Large graphs (20K+ nodes): 4-8 threads optimal
+   - Large graphs (20K-30K nodes): 4-8 threads optimal
+   - Very large graphs (50K+ nodes): 6-10 threads optimal
 
-3. **More threads ≠ faster** - memory bandwidth and cache contention limit performance. Large graphs provide enough work per thread to overcome these bottlenecks.
+3. **More threads ≠ faster** - memory bandwidth and cache contention limit performance. Very large graphs (50K+ nodes) provide enough work per thread to overcome these bottlenecks.
 
-4. **For 8-thread testing**, use the helper script:
+4. **For 10-thread testing**, use the helper script:
    ```bash
-   bash setup_large_graph_for_8threads.sh 30000 social
+   bash setup_large_graph_for_8threads.sh 50000 social
    ```
 
 5. **Increase STEPS** (50,000+) to make parallel work dominate overhead
 
-**Note**: With large graphs (20K+ nodes), optimal thread count can extend to 6-8 threads. The key is having enough work per thread to overcome memory bandwidth limitations.
+**Note**: With very large graphs (50K+ nodes), optimal thread count can extend to 8-10 threads. The key is having enough work per thread to overcome memory bandwidth limitations.
 
 ---
 

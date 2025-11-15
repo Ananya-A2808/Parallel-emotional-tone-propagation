@@ -8,7 +8,7 @@ IFS=$'\n\t'
 STEPS=50000            # increased significantly so parallel work dominates overhead
                       # For graphs with 20K+ nodes, consider increasing to 100000 for better scalability
 ALPHA=0.25
-GRAPH_EDGELIST="data/raw/large_graph_30000.edges"  # set your ego edgelist path
+GRAPH_EDGELIST="data/raw/large_graph_50000.edges"  # set your ego edgelist path (50K nodes for 10-thread testing)
 # For better parallel performance, use larger graphs:
 # - Generate: python py/generate_large_graph.py --nodes 10000 --out data/raw/large_graph.edges
 # - Scale existing: python py/scale_existing_graph.py --input data/raw/12831.edges --copies 20 --out data/raw/scaled_graph.edges
@@ -43,8 +43,8 @@ if ! declare -p THREADS_LIST >/dev/null 2>&1; then
     CPU_COUNT=$(sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
   fi
 
-  # Test thread counts from 1 to 8 (optimized for large graphs)
-  THREADS_LIST=(1 2 3 4 5 6 7 8)
+  # Test thread counts from 1 to 10 (optimized for very large graphs 50K+ nodes)
+  THREADS_LIST=(1 2 3 4 5 6 7 8 9 10)
 fi
 
 # Step 0: Skip preprocessing (preprocess_sentiment.py removed - not needed without raw tweets)
